@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>十三黄金裔 · 翁法罗斯</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+
+body { font-family: 'Noto Serif SC', serif; background: #07070a; color: #f0e6d0; overflow-x: hidden; }
+
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: radial-gradient(ellipse at center, #1a1208 0%, #07070a 70%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: opacity 1.2s, transform 1.2s;
+}
+#splash.hide { opacity: 0; transform: scale(1.15); pointer-events: none; }
+
+.splash-ring {
+  position: absolute; width: 500px; height: 500px;
+  border: 1px solid rgba(212,168,67,0.08);
+  border-radius: 50%; animation: ringSpin 40s linear infinite;
+}
+.splash-ring2 { width: 380px; height: 380px; animation-direction: reverse; animation-duration: 30s; }
+@keyframes ringSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.splash-glow {
+  position: absolute; width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(212,168,67,0.08) 0%, transparent 70%);
+  border-radius: 50%; animation: pulseGlow 4s ease-in-out infinite;
+}
+@keyframes pulseGlow { 0%,100% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 1; } }
+
+.splash-symbol { font-size: clamp(3rem,10vw,7rem); color: #d4a843; opacity: 0.15; font-family: Georgia,serif; z-index: 1; letter-spacing: 0.15em; animation: fadeUp 2s 0.2s both; }
+.splash-title { font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; color: #d4a843; text-shadow: 0 0 80px rgba(212,168,67,0.15); letter-spacing: 0.25em; z-index: 1; margin-top: -0.5rem; animation: fadeUp 2s 0.5s both; }
+.splash-sub { font-size: clamp(0.7rem,1.5vw,1rem); color: #8a7a5a; letter-spacing: 0.8em; margin-top: 0.8rem; z-index: 1; animation: fadeUp 2s 0.8s both; }
+.splash-hint { margin-top: 3.5rem; font-size: 0.8rem; color: #5a4a30; animation: fadeUp 2s 1.2s both, hintPulse 2.5s 3s ease-in-out infinite; z-index: 1; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes hintPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+.name-rain { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+.name-item { position: absolute; font-family: 'Noto Serif SC', serif; font-size: 0.9rem; color: rgba(212,168,67,0.06); white-space: nowrap; animation: nameFloat linear infinite; }
+@keyframes nameFloat { 0% { transform: translateY(110vh) rotate(-5deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-10vh) rotate(5deg); opacity: 0; } }
+
+#main { opacity: 0; transition: opacity 1.2s ease; }
+#main.show { opacity: 1; }
+
+.header { text-align: center; padding: 3rem 1rem 1.5rem; border-bottom: 1px solid rgba(212,168,67,0.08); margin-bottom: 2rem; background: linear-gradient(to bottom, rgba(212,168,67,0.03) 0%, transparent 100%); }
+.header h1 { font-size: clamp(1.6rem,4vw,2.8rem); font-weight: 900; color: #d4a843; letter-spacing: 0.15em; }
+.header p { color: #6a5a3a; margin-top: 0.4rem; letter-spacing: 0.5em; font-size: 0.8rem; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; max-width: 1200px; margin: 0 auto; padding: 0 1rem 3rem; }
+
+.card { position: relative; aspect-ratio: 3/4; border-radius: 10px; overflow: hidden; cursor: pointer; background: #0e0e14; border: 1px solid rgba(212,168,67,0.08); transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.5s; }
+.card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 25px 60px rgba(212,168,67,0.12); }
+.card:hover .card-overlay { opacity: 1; }
+.card:hover .card-img { transform: scale(1.06); }
+
+.card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+
+.card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.2) 45%, transparent 65%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem; opacity: 0.85; transition: opacity 0.4s; }
+.card-number { font-size: 0.6rem; color: #d4a843; letter-spacing: 0.25em; margin-bottom: 0.2rem; font-family: Georgia, serif; }
+.card-name { font-size: 1rem; font-weight: 700; color: #f0e6d0; }
+
+.modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 2rem; }
+.modal-overlay.active { display: flex; }
+
+.modal { background: #12121a; border-radius: 16px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; border: 1px solid rgba(212,168,67,0.15); animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.88) translateY(30px); } }
+.modal-close { float: right; background: none; border: none; color: #5a4a30; font-size: 1.4rem; cursor: pointer; transition: color 0.3s; }
+.modal-close:hover { color: #d4a843; }
+.modal-img { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; background: #0a0a0f; margin: 0.8rem 0 1rem; }
+.modal-img img { width: 100%; height: 100%; object-fit: cover; }
+.modal h2 { font-size: 1.4rem; color: #d4a843; }
+.modal .sub { color: #7a6a4a; font-size: 0.8rem; margin-bottom: 0.8rem; }
+.modal .desc { color: #b0a080; line-height: 1.8; font-size: 0.85rem; }
+
+.upload-area { margin-top: 1.2rem; padding: 1.2rem; border: 1.5px dashed rgba(212,168,67,0.2); border-radius: 10px; text-align: center; cursor: pointer; transition: border-color 0.3s, background 0.3s; }
+.upload-area:hover { border-color: #d4a843; background: rgba(212,168,67,0.04); }
+.upload-area input { display: none; }
+.upload-area p { color: #6a5a3a; font-size: 0.8rem; }
+.upload-area .icon { font-size: 1.6rem; margin-bottom: 0.3rem; }
+
+.upload-preview { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+.upload-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(212,168,67,0.15); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
+
+@media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; padding: 0 0.5rem; } .card { aspect-ratio: 2/3; } .modal { padding: 1.2rem; } }
+</style>
+</head>
+<body>
+
+<div id="splash" onclick="hideSplash()">
+  <div class="splash-ring"></div>
+  <div class="splash-ring splash-ring2"></div>
+  <div class="splash-glow"></div>
+  <div class="name-rain" id="nameRain"></div>
+  <div class="splash-symbol">✦</div>
+  <div class="splash-title">十三黄金裔</div>
+  <div class="splash-sub">翁 法 罗 斯 · 十 三 人</div>
+  <div class="splash-hint">— 点 击 进 入 —</div>
+</div>
+
+<div id="main">
+  <div class="header">
+    <h1>⚜ 十三黄金裔 ⚜</h1>
+    <p>崩坏·星穹铁道 · 翁法罗斯</p>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-img" id="modalImg"></div>
+    <h2 id="modalName"></h2>
+    <div class="sub" id="modalSub"></div>
+    <div class="desc" id="modalDesc"></div>
+    <div class="upload-area" id="uploadArea">
+      <div class="icon">🖼</div>
+      <p>点击上传角色图片</p>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+    <div class="upload-preview" id="uploadPreview"></div>
+  </div>
+</div>
+
+<script>
+const IMG_BASE = 'https://ghproxy.net/https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/image/character_portrait/';
+
+const HEROES = [
+  { id:"1402", name:"阿格莱雅",  roman:"I",   desc:"「黄金织者」阿格莱雅，执掌命运丝线的黄金裔之首。她的织机以星辰为梭，以时光为线，编织着翁法罗斯万物的命运。" },
+  { id:"1403", name:"缇宝",      roman:"II",  desc:"缇宝，心怀慈爱与悲悯的黄金裔。她以温柔的力量守护着世间的纯真，是暗夜中不灭的微光。" },
+  { id:"1404", name:"万敌",      roman:"III", desc:"「万敌」之名令敌人闻风丧胆。这位身经百战的战士，手中的长矛曾刺穿无数黑暗，为翁法罗斯夺得一线生机。" },
+  { id:"1405", name:"那刻夏",    roman:"IV",  desc:"那刻夏，掌控夜幕与星辰的黄金裔。她以夜色为袍，以星光为冠，是漫漫长夜中最明亮的那颗星。" },
+  { id:"1406", name:"赛飞儿",    roman:"V",   desc:"赛飞儿以敏捷与灵巧著称，是穿梭于阴影间的信使。她的脚步无声无息，却总能在最关键时刻现身。" },
+  { id:"1407", name:"遐蝶",      roman:"VI",  desc:"遐蝶如翩然起舞的蝴蝶，游走于生与死的边界。她象征着轮回与蜕变，每一次振翅都带来命运的交错。" },
+  { id:"1408", name:"白厄",      roman:"VII", desc:"「白厄」，注定背负宿命之人。他是燃烧自己照亮前路的薪火，以凡人之躯承载着黄金裔的意志与希望。" },
+  { id:"1409", name:"风堇",      roman:"VIII",desc:"风堇御风而行，轻盈如风中的花瓣。她是自由的化身，以风为翼，将希望与信讯传遍翁法罗斯的每一个角落。" },
+  { id:"1410", name:"海瑟音",    roman:"IX",  desc:"海瑟音，自深海中走出的黄金裔。她的歌声如潮汐般悠远，能唤起深藏于记忆深处的情感，亦能平息最狂乱的风暴。" },
+  { id:"1412", name:"刻律德菈",  roman:"X",   desc:"刻律德菈，掌管律法与秩序的黄金裔。她的天平衡量着世间万物的平衡，她的刻印铭刻着不可违背的誓言。" },
+  { id:"1413", name:"长夜月",    roman:"XI",  desc:"长夜月是永夜中的那一轮孤月，清冷而高洁。她的月光照耀着迷失者的道路，抚慰着所有彷徨的灵魂。" },
+  { id:"1414", name:"丹恒·腾荒", roman:"XII", desc:"穿越星海的旅人，在翁法罗斯化身为「腾荒」。他以龙裔之力引动风云，以不屈的意志开拓前行的道路。" },
+  { id:"1415", name:"昔涟",      roman:"XIII",desc:"昔涟，游走于时间之河上的追忆者。她掬起往昔的涟漪，让那些被遗忘的故事再度泛起微光，是连接过去与未来的桥梁。" }
+];
+
+// name rain on splash
+(function() {
+  const c = document.getElementById('nameRain');
+  HEROES.forEach((h, i) => {
+    const el = document.createElement('div');
+    el.className = 'name-item';
+    el.textContent = `${h.roman} · ${h.name}`;
+    el.style.left = (5 + i * 7.3) + '%';
+    el.style.animationDuration = (14 + Math.random() * 10) + 's';
+    el.style.animationDelay = (Math.random() * 12) + 's';
+    el.style.fontSize = (0.6 + Math.random() * 0.4) + 'rem';
+    c.appendChild(el);
+  });
+})();
+
+function hideSplash() {
+  document.getElementById('splash').classList.add('hide');
+  document.getElementById('main').classList.add('show');
+}
+document.getElementById('splash').addEventListener('transitionend', function(e) {
+  if (e.propertyName === 'opacity' && this.classList.contains('hide')) this.style.display = 'none';
+});
+
+// render grid
+const grid = document.getElementById('grid');
+HEROES.forEach(h => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<img class="card-img" src="${IMG_BASE}${h.id}.png" alt="${h.name}" loading="lazy">
+    <div class="card-overlay">
+      <div class="card-number">${h.roman} · 黄金裔</div>
+      <div class="card-name">${h.name}</div>
+    </div>`;
+  card.addEventListener('click', () => openModal(h));
+  grid.appendChild(card);
+});
+
+let cur = null;
+function openModal(h) {
+  cur = h;
+  document.getElementById('modal').classList.add('active');
+  document.getElementById('modalName').textContent = `${h.roman} · ${h.name}`;
+  document.getElementById('modalSub').textContent = `黄金裔 · 翁法罗斯`;
+  document.getElementById('modalDesc').textContent = h.desc;
+  document.getElementById('modalImg').innerHTML = `<img src="${IMG_BASE}${h.id}.png" alt="${h.name}">`;
+  const preview = document.getElementById('uploadPreview');
+  preview.innerHTML = '';
+  (JSON.parse(localStorage.getItem(`up_${h.id}`) || '[]')).forEach(s => {
+    const i = document.createElement('img'); i.src = s; preview.appendChild(i);
+  });
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', function() {
+  if (!cur) return;
+  const preview = document.getElementById('uploadPreview');
+  const list = JSON.parse(localStorage.getItem(`up_${cur.id}`) || '[]');
+  Array.from(this.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      const s = e.target.result;
+      list.push(s);
+      localStorage.setItem(`up_${cur.id}`, JSON.stringify(list));
+      const img = document.createElement('img'); img.src = s; preview.appendChild(img);
+    };
+    r.readAsDataURL(f);
+  });
+  this.value = '';
+});
+</script>
+</body>
+</html>
